@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
-//@Configuration
 @EnableKafka
 public class BaseConfig {
 

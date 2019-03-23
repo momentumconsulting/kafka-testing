@@ -10,7 +10,7 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KafkaMessageListenerContainerFactory<Value> {
+public class KafkaMessageListenerContainerFactory {
 
     private KafkaProps kafkaProps;
 
@@ -19,7 +19,7 @@ public class KafkaMessageListenerContainerFactory<Value> {
         this.kafkaProps = kafkaProps;
     }
 
-    public KafkaMessageListenerContainer<String, Value> instance(MessageListener<String, Value> messageListener) {
+    public <Value> KafkaMessageListenerContainer<String, Value> instance(MessageListener<String, Value> messageListener) {
         ContainerProperties containerProperties = new ContainerProperties(kafkaProps.getTopics());
         DefaultKafkaConsumerFactory<String, Value> defaultKafkaConsumerFactory =
                 new DefaultKafkaConsumerFactory<>(kafkaProps.getProps());

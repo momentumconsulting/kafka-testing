@@ -33,7 +33,7 @@ public class SimpleAvroProducerConsumerExample implements CommandLineRunner {
     private KafkaTemplate<String, AvroString> template;
 
     @Autowired
-    private KafkaMessageListenerContainerFactory<AvroString> kafkaMessageListenerContainerFactory;
+    private KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory;
 
     public static void main(String... args) {
         SpringApplication app = new SpringApplication(SimpleAvroProducerConsumerExample.class);
@@ -61,16 +61,16 @@ public class SimpleAvroProducerConsumerExample implements CommandLineRunner {
         KafkaMessageListenerContainer<String, AvroString> listenerContainer = kafkaMessageListenerContainerFactory.instance((message) -> {
             log.info("======> Received avro: " + message);
         });
-
         listenerContainer.start();
-        Thread.sleep(5000);
 
+        log.info("Waiting a few seconds...");
+        Thread.sleep(5000);
 
         log.info("======> Starting send...");
         template.send(topic, new AvroString("foo1"));
         template.send(topic, new AvroString("foo2"));
         template.send(topic, new AvroString("foo3"));
-        log.info("======> All received.");
+        log.info("======> All sent.");
     }
 
 }

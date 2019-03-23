@@ -27,7 +27,7 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
     private KafkaTemplate<String, String> template;
 
     @Autowired
-    private KafkaMessageListenerContainerFactory<String> kafkaMessageListenerContainerFactory;
+    private KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory;
 
     public static void main(String... args) {
         SpringApplication app = new SpringApplication(SimpleProducerConsumerExample.class);
@@ -49,15 +49,16 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
         KafkaMessageListenerContainer<String, String> listenerContainer = kafkaMessageListenerContainerFactory.instance((message) -> {
             log.info("======> Received: " + message);
         });
-
         listenerContainer.start();
+
+        log.info("Waiting a few seconds...");
         Thread.sleep(5000);
 
         log.info("======> Starting send...");
         template.send(topic, "foo1");
         template.send(topic, "foo2");
         template.send(topic, "foo3");
-        log.info("======> All received.");
+        log.info("======> All sent.");
     }
 
 }
