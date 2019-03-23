@@ -1,4 +1,4 @@
-package com.mc.kafka;
+package com.mc.kafka.shared.model;
 
 import lombok.Data;
 

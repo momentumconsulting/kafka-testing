@@ -1,5 +1,6 @@
-package com.mc.kafka;
+package com.mc.kafka.shared.factory;
 
+import com.mc.kafka.shared.model.KafkaProps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
@@ -9,7 +10,7 @@ import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class KafkaMessageListenerContainerFactory {
+public class KafkaMessageListenerContainerFactory<Value> {
 
     private KafkaProps kafkaProps;
 
@@ -18,9 +19,9 @@ public class KafkaMessageListenerContainerFactory {
         this.kafkaProps = kafkaProps;
     }
 
-    public KafkaMessageListenerContainer<String, String> instance(MessageListener<String, String> messageListener) {
+    public KafkaMessageListenerContainer<String, Value> instance(MessageListener<String, Value> messageListener) {
         ContainerProperties containerProperties = new ContainerProperties(kafkaProps.getTopics());
-        DefaultKafkaConsumerFactory<String, String> defaultKafkaConsumerFactory =
+        DefaultKafkaConsumerFactory<String, Value> defaultKafkaConsumerFactory =
                 new DefaultKafkaConsumerFactory<>(kafkaProps.getProps());
 
         containerProperties.setMessageListener(messageListener);

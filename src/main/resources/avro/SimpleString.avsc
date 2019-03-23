@@ -1,0 +1,8 @@
+{
+    "namespace": "com.mc.kafka.avro.model",
+    "type": "record",
+    "name": "AvroString",
+    "fields": [
+        {"name": "str", "type": "string"}
+    ]
+}

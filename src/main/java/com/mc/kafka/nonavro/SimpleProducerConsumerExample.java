@@ -1,6 +1,6 @@
-package com.mc.kafka;
+package com.mc.kafka.nonavro;
 
-import io.confluent.kafka.schemaregistry.RestApp;
+import com.mc.kafka.shared.factory.KafkaMessageListenerContainerFactory;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,13 +24,10 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
     private EmbeddedKafkaBroker broker;
 
     @Autowired
-    private RestApp schemaRegistry;
-
-    @Autowired
     private KafkaTemplate<String, String> template;
 
     @Autowired
-    private KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory;
+    private KafkaMessageListenerContainerFactory<String> kafkaMessageListenerContainerFactory;
 
     public static void main(String... args) {
         SpringApplication app = new SpringApplication(SimpleProducerConsumerExample.class);
@@ -45,12 +42,6 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutting down...");
             broker.destroy();
-
-            try {
-                schemaRegistry.stop();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }));
 
         log.info("======> Starting consumer...");
