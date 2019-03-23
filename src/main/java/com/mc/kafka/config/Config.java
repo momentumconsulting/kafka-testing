@@ -1,11 +1,13 @@
 package com.mc.kafka.config;
 
 import com.mc.kafka.KafkaProps;
+import io.confluent.kafka.schemaregistry.RestApp;
+import io.confluent.kafka.schemaregistry.avro.AvroCompatibilityLevel;
+import io.confluent.kafka.schemaregistry.rest.SchemaRegistryConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -14,17 +16,23 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 @Configuration
 @EnableKafka
 public class Config {
 
     private static final String[] TOPICS = {"test"};
-
-    public static final int[] PORTS = {9092};
+    private static final int[] KAFKA_BROKER_PORTS = {9092};
+    // Random port
+    private static final int SCHEMA_REG_PORT = 0;
+    private static final String KAFKASTORE_OPERATION_TIMEOUT_MS = "10000";
+    private static final String KAFKASTORE_DEBUG = "true";
+    private static final String KAFKASTORE_INIT_TIMEOUT = "90000";
+    private static final String KAFKA_SCHEMAS_TOPIC = "_schemas";
+    private static final String AVRO_COMPATIBILITY_TYPE = AvroCompatibilityLevel.NONE.name;
 
     @Bean("topics")
     String[] topics() {
@@ -33,11 +41,28 @@ public class Config {
 
     @Bean
     EmbeddedKafkaBroker embeddedKafkaBroker() {
-        EmbeddedKafkaBroker broker = new EmbeddedKafkaBroker(1, true, 1, TOPICS);
+        EmbeddedKafkaBroker broker = new EmbeddedKafkaBroker(1, false, 1, TOPICS);
 
-        broker.kafkaPorts(PORTS);
+        broker.kafkaPorts(KAFKA_BROKER_PORTS);
 
         return broker;
+    }
+
+    @Bean
+    RestApp schemaRegistry() throws Exception {
+        EmbeddedKafkaBroker broker = embeddedKafkaBroker();
+
+        final Properties schemaRegistryProps = new Properties();
+
+        schemaRegistryProps.put(SchemaRegistryConfig.KAFKASTORE_TIMEOUT_CONFIG, KAFKASTORE_OPERATION_TIMEOUT_MS);
+        schemaRegistryProps.put(SchemaRegistryConfig.DEBUG_CONFIG, KAFKASTORE_DEBUG);
+        schemaRegistryProps.put(SchemaRegistryConfig.KAFKASTORE_INIT_TIMEOUT_CONFIG, KAFKASTORE_INIT_TIMEOUT);
+
+        RestApp schemaRegistry = new RestApp(SCHEMA_REG_PORT, broker.getZookeeperConnectionString(),
+                KAFKA_SCHEMAS_TOPIC, AVRO_COMPATIBILITY_TYPE, schemaRegistryProps);
+        schemaRegistry.start();
+
+        return schemaRegistry;
     }
 
     @Bean
@@ -46,6 +71,7 @@ public class Config {
         ProducerFactory<String, String> pf =
                 new DefaultKafkaProducerFactory<>(senderProps);
         KafkaTemplate<String, String> template = new KafkaTemplate<>(pf);
+
         return template;
     }
 

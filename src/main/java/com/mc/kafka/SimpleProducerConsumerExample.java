@@ -1,5 +1,6 @@
 package com.mc.kafka;
 
+import io.confluent.kafka.schemaregistry.RestApp;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -9,7 +10,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
-import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
 
 @SpringBootApplication
@@ -22,6 +22,9 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
 
     @Autowired
     private EmbeddedKafkaBroker broker;
+
+    @Autowired
+    private RestApp schemaRegistry;
 
     @Autowired
     private KafkaTemplate<String, String> template;
@@ -42,6 +45,12 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutting down...");
             broker.destroy();
+
+            try {
+                schemaRegistry.stop();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }));
 
         log.info("======> Starting consumer...");
@@ -49,8 +58,9 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
         KafkaMessageListenerContainer<String, String> listenerContainer = kafkaMessageListenerContainerFactory.instance((message) -> {
             log.info("======> Received: " + message);
         });
+
         listenerContainer.start();
-        Thread.sleep(2000);
+        Thread.sleep(5000);
 
         log.info("======> Starting send...");
         template.send(topic, "foo1");
