@@ -4,6 +4,9 @@ import lombok.Data;
 
 import java.util.Map;
 
+/**
+ * A model that contains Kafka property information.
+ */
 @Data
 public class KafkaProps {
 

@@ -8,7 +8,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -19,9 +18,11 @@ import org.springframework.kafka.test.EmbeddedKafkaBroker;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A Spring configuration for the non-Avro producer and consumer.
+ */
 @Configuration
 @Import(BaseConfig.class)
-@ComponentScan(basePackages = {"com.mc.kafka.nonavro", "com.mc.kafka.shared"})
 public class ConfigNonAvro {
 
     @Bean

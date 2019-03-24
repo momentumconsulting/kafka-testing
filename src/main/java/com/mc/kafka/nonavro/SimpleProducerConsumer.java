@@ -4,41 +4,38 @@ import com.mc.kafka.shared.factory.KafkaMessageListenerContainerFactory;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.stereotype.Component;
 
-@SpringBootApplication
+/**
+ * A simple producer and consumer example that uses the embedded Kafka broker to produce and consume three
+ * {@link String} messages.
+ */
+@Component
 @Log4j2
-public class SimpleProducerConsumerExample implements CommandLineRunner {
+public class SimpleProducerConsumer implements CommandLineRunner {
 
-    @Autowired
-    @Qualifier("topics")
-    private String[] topics;
-
-    @Autowired
+    private String topic;
     private EmbeddedKafkaBroker broker;
-
-    @Autowired
     private KafkaTemplate<String, String> template;
-
-    @Autowired
     private KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory;
 
-    public static void main(String... args) {
-        SpringApplication app = new SpringApplication(SimpleProducerConsumerExample.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.run(args);
+    @Autowired
+    public SimpleProducerConsumer(@Qualifier("topics") String[] topics,
+                                  EmbeddedKafkaBroker broker,
+                                  KafkaTemplate<String, String> template,
+                                  KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory) {
+        this.topic = topics[0];
+        this.broker = broker;
+        this.template = template;
+        this.kafkaMessageListenerContainerFactory = kafkaMessageListenerContainerFactory;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        String topic = topics[0];
-
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("Shutting down...");
             broker.destroy();
@@ -60,5 +57,4 @@ public class SimpleProducerConsumerExample implements CommandLineRunner {
         template.send(topic, "foo3");
         log.info("======> All sent.");
     }
-
 }

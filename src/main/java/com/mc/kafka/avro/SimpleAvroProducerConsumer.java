@@ -1,44 +1,42 @@
 package com.mc.kafka.avro;
 
-import com.mc.kafka.shared.factory.KafkaMessageListenerContainerFactory;
 import com.mc.kafka.avro.model.AvroString;
+import com.mc.kafka.shared.factory.KafkaMessageListenerContainerFactory;
 import io.confluent.kafka.schemaregistry.RestApp;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Profile;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.test.EmbeddedKafkaBroker;
+import org.springframework.stereotype.Component;
 
-@SpringBootApplication
+/**
+ * A simple producer and consumer example that uses the embedded Kafka broker and Confluent schema registry to produce
+ * and consume three {@link AvroString} messages.
+ */
+@Component
 @Log4j2
-public class SimpleAvroProducerConsumerExample implements CommandLineRunner {
+public class SimpleAvroProducerConsumer implements CommandLineRunner {
 
-    @Autowired
-    @Qualifier("topics")
     private String[] topics;
-
-    @Autowired
     private EmbeddedKafkaBroker broker;
-
-    @Autowired
     private RestApp schemaRegistry;
-
-    @Autowired
     private KafkaTemplate<String, AvroString> template;
-
-    @Autowired
     private KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory;
 
-    public static void main(String... args) {
-        SpringApplication app = new SpringApplication(SimpleAvroProducerConsumerExample.class);
-        app.setBannerMode(Banner.Mode.OFF);
-        app.run(args);
+    @Autowired
+    public SimpleAvroProducerConsumer(@Qualifier("topics") String[] topics,
+                                      EmbeddedKafkaBroker broker,
+                                      RestApp schemaRegistry,
+                                      KafkaTemplate<String, AvroString> template,
+                                      KafkaMessageListenerContainerFactory kafkaMessageListenerContainerFactory) {
+        this.topics = topics;
+        this.broker = broker;
+        this.schemaRegistry = schemaRegistry;
+        this.template = template;
+        this.kafkaMessageListenerContainerFactory = kafkaMessageListenerContainerFactory;
     }
 
     @Override
@@ -58,9 +56,10 @@ public class SimpleAvroProducerConsumerExample implements CommandLineRunner {
 
         log.info("======> Starting consumer...");
 
-        KafkaMessageListenerContainer<String, AvroString> listenerContainer = kafkaMessageListenerContainerFactory.instance((message) -> {
-            log.info("======> Received avro: " + message);
-        });
+        KafkaMessageListenerContainer<String, AvroString> listenerContainer =
+                kafkaMessageListenerContainerFactory.instance((message) -> {
+                    log.info("======> Received avro: " + message);
+                });
         listenerContainer.start();
 
         log.info("Waiting a few seconds...");

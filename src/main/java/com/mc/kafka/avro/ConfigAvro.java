@@ -24,9 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * A Spring configuration for the Avro producer and consumer.
+ */
 @Configuration
 @Import(BaseConfig.class)
-@ComponentScan(basePackages = {"com.mc.kafka.avro", "com.mc.kafka.shared"})
 public class ConfigAvro {
 
     private static final int SCHEMA_REG_PORT = 19092;

@@ -9,6 +9,9 @@ import org.springframework.kafka.listener.KafkaMessageListenerContainer;
 import org.springframework.kafka.listener.MessageListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * A Factory used to instantiate a {@link KafkaMessageListenerContainer} with a configured {@link MessageListener}.
+ */
 @Component
 public class KafkaMessageListenerContainerFactory {
 
